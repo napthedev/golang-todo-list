@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/fs"
 	"net/http"
 	"os"
 
@@ -70,15 +68,8 @@ func main() {
 			Value: newTodo.Value,
 		})
 
-		marshaled, err := json.Marshal(todos)
-		var indented bytes.Buffer
-		json.Indent(&indented, marshaled, "", "  ")
-		if err != nil {
-			ctx.IndentedJSON(http.StatusInternalServerError, gin.H{
-				"message": "Something went wrong",
-			})
-		}
-		os.WriteFile("./data.json", indented.Bytes(), fs.ModeExclusive)
+		marshaled, _ := json.MarshalIndent(todos, "", "  ")
+		os.WriteFile("./data.json", marshaled, 0777)
 		ctx.IndentedJSON(http.StatusOK, todos[len(todos)-1])
 	})
 
